@@ -1,0 +1,44 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "PPO",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--mode",
+                "PPO"
+            ],
+            "justMyCode": false
+        },
+        {
+            "name": "Init",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "init.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--alpha",
+                "1"
+            ],
+            "justMyCode": false
+        },
+        {
+            "name": "Random",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--mode",
+                "Random"
+            ],
+            "justMyCode": false
+        }
+    ]
+}
