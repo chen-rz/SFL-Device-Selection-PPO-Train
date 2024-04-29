@@ -139,33 +139,6 @@ def create_partitions(
     return [adjust_xy_shape(xy) for xy in xy_partitions]
 
 
-# def create_partitioned_dataset(
-#     keras_dataset: Tuple[XY, XY],
-#     iid_fraction: float,
-#     num_partitions: int,
-# ) -> Tuple[PartitionedDataset, XY]:
-#     """Create partitioned version of keras dataset.
-#
-#     Currently tested and supported are MNIST, FashionMNIST and
-#     CIFAR-10/100
-#     """
-#     xy_train, xy_test = keras_dataset
-#
-#     xy_train_partitions = create_partitions(
-#         unpartitioned_dataset=xy_train,
-#         iid_fraction=iid_fraction,
-#         num_partitions=num_partitions,
-#     )
-#
-#     xy_test_partitions = create_partitions(
-#         unpartitioned_dataset=xy_test,
-#         iid_fraction=iid_fraction,
-#         num_partitions=num_partitions,
-#     )
-#
-#     return (xy_train_partitions, xy_test_partitions), adjust_xy_shape(xy_test)
-
-
 def log_distribution(xy_partitions: XYList) -> None:
     """Print label distribution for list of paritions."""
     distro = [np.unique(y, return_counts=True) for _, y in xy_partitions]

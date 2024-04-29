@@ -4,6 +4,9 @@ pool_size = 100
 # Number of participants in each round
 num_to_choose = 20
 
+# Volatility
+num_on_strike = 0
+
 # Global iterations
 num_rounds = 10
 

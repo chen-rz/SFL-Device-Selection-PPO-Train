@@ -4,16 +4,13 @@ import shutil
 from pathlib import Path
 
 import flwr as fl
-import torchvision
 
-from dataset_utils import cifar10Transformation
 from strategy import *
-import client as clt
 
 parser = argparse.ArgumentParser(description="SFL Device Selection PPO Training")
 parser.add_argument("--num_client_cpus", type=int, default=6)
 parser.add_argument("--num_client_gpus", type=int, default=1)
-parser.add_argument("--mode", type=str, default="Full")
+parser.add_argument("--mode", type=str, default="PPO")
 
 # Start simulation (a _default server_ will be created)
 if __name__ == "__main__":
@@ -26,11 +23,20 @@ if __name__ == "__main__":
     )
 
     # clear previous records
-    path_to_init = ["train_loss_per_cli", "val_accu_per_cli", "val_loss_per_cli"]
+    # TODO
+    path_to_init = ["fit_clients", "fit_server", "avg_loss_per_round",
+                    "train_loss_per_cli", "val_accu_per_cli", "val_loss_per_cli", "C_records"]
     for _ in path_to_init:
         if Path("output/" + _ + "/").exists():
             shutil.rmtree("output/" + _ + "/")
         os.mkdir("output/" + _ + "/")
+
+    with open("./output/reward.txt", mode='w') as outputFile:
+        outputFile.write("")
+    with open("./output/regret.txt", mode='w') as outputFile:
+        outputFile.write("")
+    with open("./output/involvement_history.txt", mode='w') as outputFile:
+        outputFile.write("")
     #############################################################
 
     client_resources = {
@@ -64,18 +70,20 @@ if __name__ == "__main__":
     }
 
     # Configure the strategy
-    strategy = FL(
+    strategy = SFL(
         on_fit_config_fn=clt.fit_config,
         # centralised evaluation of global model
         evaluate_fn=clt.get_evaluate_fn(testset),
     )
 
     # Configure the client manager
-    if args.mode == "Full":
-        client_manager = Full_ClientManager()
+    if args.mode == "PPO":
+        client_manager = PPO_ClientManager()
+    elif args.mode == "Random":
+        client_manager = Random_ClientManager()
     else:
         client_manager = SimpleClientManager()
-        raise NameError("Invalid mode")
+        raise ValueError("Invalid mode")
 
     # start simulation
     simulation = fl.simulation.start_simulation(
@@ -96,3 +104,43 @@ if __name__ == "__main__":
         outputFile.write(str(simulation.losses_distributed))
     with open("./output/metrics_centralized.txt", mode='w') as outputFile:
         outputFile.write(str(simulation.metrics_centralized))
+
+    ###############################################################################
+    # Check records of last round
+    with open(
+            "./output/fit_server/round_{}.txt".format(num_rounds),
+            mode='r'
+    ) as last_inputFile:
+        clients_of_last_round = eval(last_inputFile.readline())["clients_selected"]
+
+    for _ in range(pool_size):
+        # If the client was not selected in the last round,
+        # help it complete the records
+        if _ not in clients_of_last_round:
+            with open(
+                    "./output/train_loss_per_cli/client_{}.txt".format(_),
+                    mode='a'
+            ) as last_outputFile:
+                last_outputFile.write("-1" + "\n")
+            with open(
+                    "./output/val_accu_per_cli/client_{}.txt".format(_),
+                    mode='a'
+            ) as outputFile:
+                outputFile.write("-1" + "\n")
+            with open(
+                    "./output/val_loss_per_cli/client_{}.txt".format(_),
+                    mode='a'
+            ) as outputFile:
+                outputFile.write("-1" + "\n")
+    
+    # Record involvements of last round
+    with open("./output/involvement_history.txt", mode='r') as inputFile:
+        fileLine = inputFile.readline()
+        assert fileLine
+        involvement_history = eval(fileLine)
+    for _ in range(pool_size):
+        if _ in clients_of_last_round:
+            involvement_history[_] += 1
+    with open("./output/involvement_history.txt", mode='w') as outputFile:
+        outputFile.write(str(involvement_history))
+    ###############################################################################

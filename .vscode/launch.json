@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "FL Full Run",
+            "name": "PPO",
             "type": "debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -10,7 +10,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--mode",
-                "Full"
+                "PPO"
             ],
             "justMyCode": false
         },
@@ -24,6 +24,19 @@
             "args": [
                 "--alpha",
                 "1"
+            ],
+            "justMyCode": false
+        },
+        {
+            "name": "Random",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--mode",
+                "Random"
             ],
             "justMyCode": false
         }
