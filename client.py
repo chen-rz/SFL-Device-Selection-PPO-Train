@@ -33,11 +33,6 @@ class FlowerClient(fl.client.NumPyClient):
         self.properties["computation"] = param_dict["computation"]
         self.properties["transPower"] = param_dict["transPower"]
 
-        # TODO
-        self.properties["updateTime"] = \
-            fit_config(0)["epochs"] * sys_modelFlops * self.properties["dataSize"] \
-                / self.properties["computation"]
-
     def get_properties(self, config) -> Dict[str, Scalar]:
         return self.properties
 
@@ -69,7 +64,7 @@ class FlowerClient(fl.client.NumPyClient):
 
         # Record loss
         with open(
-                "./output/train_loss/client_{}.txt".format(self.cid),
+                "./output/train_loss_per_cli/client_{}_train_loss.txt".format(self.cid),
                 mode='a'
         ) as outputFile:
             outputFile.write(str(train_loss) + "\n")
@@ -95,12 +90,12 @@ class FlowerClient(fl.client.NumPyClient):
 
         # Record loss and accuracy
         with open(
-                "./output/val_loss/client_{}.txt".format(self.cid),
+                "./output/val_loss_per_cli/client_{}_val_loss.txt".format(self.cid),
                 mode='a'
         ) as outputFile:
             outputFile.write(str(loss) + "\n")
         with open(
-                "./output/val_accu/client_{}.txt".format(self.cid),
+                "./output/val_accu_per_cli/client_{}_val_accu.txt".format(self.cid),
                 mode='a'
         ) as outputFile:
             outputFile.write(str(accuracy) + "\n")
